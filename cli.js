@@ -6,4 +6,4 @@ if(process.argv.length > 2) {
   store(data);
 }
 
-console.log("Stored data:", retrieve());
+console.log(retrieve().join('\n'));
