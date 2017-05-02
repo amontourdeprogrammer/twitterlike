@@ -4,16 +4,17 @@ const execFileSync = require('child_process').execFileSync;
 const {store, retrieve, clear} = require('../lib/datastore');
 
 describe("twitterlike", function() {
-  beforeEach(function() {
-    clear();
+  beforeEach(function(done) {
+    clear(done);
   });
 
-  it("persists data", function() {
-    store("some data");
-
-    const retrieved = retrieve();
-
-    expect(retrieved).to.eql(["some data"]);
+  it("persists data", function(done) {
+    store("some data", function() {
+      retrieve(function(err, retrieved) {
+        expect(retrieved).to.eql(["some data"]);
+        done();
+      });
+    });
   });
 
   it("persists data across processes", function() {
@@ -25,12 +26,14 @@ describe("twitterlike", function() {
     expect(output).to.be('first bit\nsecond bit\n');
   });
 
-  it("persists several bits of data", function() {
-    store("first bit");
-    store("second bit");
-
-    const retrieved = retrieve();
-
-    expect(retrieved).to.eql(["first bit", "second bit"]);
+  it("persists several bits of data", function(done) {
+    store("first bit", function() {
+      store("second bit", function() {
+        retrieve(function(err, retrieved) {
+          expect(retrieved).to.eql(["first bit", "second bit"]);
+          done();
+        })
+      })
+    })
   });
 });
